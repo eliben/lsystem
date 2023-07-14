@@ -1,0 +1,58 @@
+<!doctype html>
+<style>
+    .container {
+        margin: 0 auto;
+        display: grid;
+        max-width: 800px;
+        grid-template-columns: 5fr 3fr;
+        grid-template-rows: repeat(2, fit-content());
+        grid-template-areas:
+            "plotcanvas sidebar"
+            "controls sidebar"
+    }
+
+    .plotcanvas {
+        grid-area: plotcanvas;
+        justify-self: center;
+        padding: 10px;
+    }
+
+    .controls {
+        grid-area: controls;
+        justify-self: center;
+        text-align: center;
+        padding-top: 6px;
+    }
+
+    .sidebar {
+        grid-area: sidebar;
+        font-family: Verdana, sans-serif;
+        font-size: 14px;
+        border: solid 1px;
+        border-color: darkgray;
+        padding: 5px;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="plotcanvas">
+            <canvas id="plot"></canvas>
+        </div>
+        <div class="controls">
+            Algorithm:
+            <select id="algorithm" name="algorithm">
+                <option value="boxy">Boxy</option>
+                <option value="radial">Radial</option>
+            </select>
+            <button id="run" title="Run the simulation for this number of steps">Run</button>
+            Steps: <input size="8" id="numsteps"></input>
+            <button id="stop" title="Stop simulation">Stop</button>
+        </div>
+        <div class="sidebar">
+            words
+        </div>
+    </div>
+
+    <script src="lsys.js"></script>
+</body>
