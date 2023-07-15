@@ -1,23 +1,24 @@
 'use strict';
 
-let axiom = parseRule('f++f++f');
+// let axiom = parseRule('f-f-f-f');
+// let axiom = parseRule('f++f++f');
 // let axiom = parseRule('f--f--f');
-// let axiom = parseRule('f');
+let axiom = parseRule('f');
 
-let rules = parseAllRules(`
-f=f-f++f-f`
-);
-
+// let rules = parseAllRules(`f=f-f+f+ff-f-f+f`);
+// let rules = parseAllRules(`
+// f=f-f++f-f`
+// );
 // let rules = parseAllRules(`
 // f=f--f--f--gg
 // g=gg
 // `);
 
-// let rules = parseAllRules(`f=|[-f][+f]`);
+let rules = parseAllRules(`f=|[-f][+f]`);
 
 // All configuration angles are in degrees.
 // TODO: also add angle noise
-const AngleChange = 60;
+const AngleChange = 20;
 const InitialAngle = 180;
 const ScaleMultiplier = 0.65;
 const Depth = 7;
@@ -107,10 +108,10 @@ let maxy = -Infinity;
 
 Ctx.strokeStyle = '#000000';
 computeFigure(axiom, Depth, initialState(), (oldx, oldy, newx, newy, dodraw) => {
-    minx = Math.min(minx, newx);
-    maxx = Math.max(maxx, newx);
-    miny = Math.min(miny, newy);
-    maxy = Math.max(maxy, newy);
+    minx = Math.min(minx, newx, oldx);
+    maxx = Math.max(maxx, newx, oldx);
+    miny = Math.min(miny, newy, oldy);
+    maxy = Math.max(maxy, newy, oldy);
 });
 
 // Now we have the boundaries of the drawing in abstract units (scale=1), but
