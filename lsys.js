@@ -75,7 +75,7 @@ function saveUIState() {
 // It's called as executor(oldx, oldy, newx, newy, doDraw) when the movement
 // is from (oldx, oldy) to (newx, newy) and doDraw is true if we the pen is
 // down ('f' or '|'), false if it's up (just movement, 'g').
-function computeFigure(rule, rules, depth, state, executor) {
+function computeFigure(rule, rules, state, executor) {
     // console.log(`## depth=${depth}:`, rule);
     for (let r of rule) {
         if (r instanceof TurnRight) {
@@ -83,13 +83,16 @@ function computeFigure(rule, rules, depth, state, executor) {
         } else if (r instanceof TurnLeft) {
             state.angle -= r.num * state.angleChange;
         } else if (r instanceof Letter || r instanceof Pipe) {
-            if (depth > 0 && r instanceof Letter) {
+            if (state.depth > 0 && r instanceof Letter) {
                 // If we haven't reached final depth yet, recurse -- but only
                 // for letters. Pipes never recurse.
                 let savedScale = state.scale;
+                let savedDepth = state.depth;
                 state.scale *= state.scaleMultiplier;
-                computeFigure(rules[r.val], rules, depth - 1, state, executor);
+                state.depth -= 1;
+                computeFigure(rules[r.val], rules, state, executor);
                 state.scale = savedScale;
+                state.depth = savedDepth;
             } else if (r instanceof Pipe || r.val === 'f' || r.val === 'g') {
                 // A command that requires movement -- f/g at depth 0, or
                 // pipe at any depth.
@@ -103,7 +106,7 @@ function computeFigure(rule, rules, depth, state, executor) {
                 state.y = newY;
             }
         } else if (r instanceof Nested) {
-            computeFigure(r.rule, rules, depth, structuredClone(state), executor);
+            computeFigure(r.rule, rules, structuredClone(state), executor);
         } else {
             throw new Error(`unrecognized rule ${r}`);
         }
@@ -118,6 +121,7 @@ function initialState() {
         x: 0,
         y: 0,
         scale: 1,
+        depth: Number(DepthBox.value),
     };
 }
 
@@ -148,12 +152,11 @@ function onRun() {
     let miny = Infinity;
     let maxy = -Infinity;
 
-    let initDepth = Number(DepthBox.value);
     let axiom = parseRule(AxiomTextBox.value);
     let rules = parseAllRules(RulesTextBox.value);
 
     Ctx.strokeStyle = '#000000';
-    computeFigure(axiom, rules, initDepth, initialState(), (oldx, oldy, newx, newy, dodraw) => {
+    computeFigure(axiom, rules, initialState(), (oldx, oldy, newx, newy, dodraw) => {
         minx = Math.min(minx, newx, oldx);
         maxx = Math.max(maxx, newx, oldx);
         miny = Math.min(miny, newy, oldy);
@@ -228,7 +231,7 @@ function onRun() {
 
     // console.log(axiom, initialState());
 
-    computeFigure(axiom, rules, initDepth, initialState(), (oldx, oldy, newx, newy, dodraw) => {
+    computeFigure(axiom, rules, initialState(), (oldx, oldy, newx, newy, dodraw) => {
         if (dodraw) {
             Ctx.beginPath();
             Ctx.moveTo(translateX(oldx), translateY(oldy));
