@@ -6,7 +6,8 @@ let axiom = parseRule('f++f++f');
 let rules = {};
 addRule(rules, 'f=f-f++f-f');
 
-const AngleChange = 60 * Math.PI / 180.0;
+// All configuration angles are in degrees.
+const AngleChange = 60;
 const InitialAngle = 0;
 const ScaleMultiplier = 0.65;
 const CanvasWidth = 400;
@@ -19,14 +20,14 @@ Canvas.height = CanvasHeight;
 
 function initialState() {
     return {
-        angle: InitialAngle * Math.PI / 180.0,
+        angle: InitialAngle,
         x: 0,
         y: 0,
         scale: 1,
     };
 }
 
-function computeFigure(rule, depth, executor) {
+function computeFigure(rule, depth, state, executor) {
     console.log(`## depth=${depth}:`, rule);
     for (let r of rule) {
         if (r instanceof TurnRight) {
@@ -39,38 +40,33 @@ function computeFigure(rule, depth, executor) {
                 // for letters. Pipes never recurse.
                 let savedScale = state.scale;
                 state.scale *= ScaleMultiplier;
-                computeFigure(rules[r.val], depth - 1, executor);
+                computeFigure(rules[r.val], depth - 1, state, executor);
                 state.scale = savedScale;
             } else if (r instanceof Pipe || r.val === 'f' || r.val === 'g') {
                 // A command that requires movement -- f/g at depth 0, or
                 // pipe at any depth.
 
                 // Calculate the new position after this move.
-                let newX = state.x + Math.sin(state.angle) * state.scale;
-                let newY = state.y + Math.cos(state.angle) * state.scale;
+                let newX = state.x + Math.sin(state.angle * Math.PI / 180.0) * state.scale;
+                let newY = state.y + Math.cos(state.angle * Math.PI / 180.0) * state.scale;
 
                 executor(state.x, state.y, newX, newY, r instanceof Pipe || r.val === 'f');
                 state.x = newX;
                 state.y = newY;
             }
         } else if (r instanceof Nested) {
-            let savedState = structuredClone(state);
-            computeFigure(r.rule, depth, executor);
-            state = savedState;
+            computeFigure(r.rule, depth, structuredClone(state), executor);
         } else {
             throw new Error(`unrecognized rule ${r}`);
         }
     }
 }
 
-// TODO: Make it param, not global?
-let state = initialState();
-
 function translateCoord(c) {
-    return 200 + c * 50;
+    return 200 + c * 10;
 }
 
-computeFigure(axiom, 2, (oldx, oldy, newx, newy, dodraw) => {
+computeFigure(axiom, 4, initialState(), (oldx, oldy, newx, newy, dodraw) => {
     console.log(oldx, oldy, newx, newy, dodraw);
 
     Ctx.beginPath();
