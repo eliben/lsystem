@@ -78,11 +78,42 @@ function translateCoord(c) {
     return 200 + c * 50;
 }
 
+// Draw axes
+Ctx.strokeStyle = '#bb0000';
+Ctx.beginPath();
+Ctx.moveTo(0, CanvasHeight / 2);
+Ctx.lineTo(CanvasWidth, CanvasHeight / 2);
+Ctx.moveTo(CanvasWidth / 2, 0);
+Ctx.lineTo(CanvasWidth / 2, CanvasHeight);
+Ctx.stroke();
+
+
+
+const Depth = 5;
+
+// First run to determine the boundaries of the drawing in "units".
+let minx = Infinity;
+let maxx = -Infinity;
+let miny = Infinity;
+let maxy = -Infinity;
+
+Ctx.strokeStyle = '#000000';
 computeFigure(axiom, 5, initialState(), (oldx, oldy, newx, newy, dodraw) => {
+    minx = Math.min(minx, newx);
+    maxx = Math.max(maxx, newx);
+    miny = Math.min(miny, newy);
+    maxy = Math.max(maxy, newy);
     // console.log(oldx, oldy, newx, newy, dodraw);
 
+    // Ctx.strokeStyle = '#550000';
     Ctx.beginPath();
     Ctx.moveTo(translateCoord(oldx), translateCoord(oldy));
     Ctx.lineTo(translateCoord(newx), translateCoord(newy));
     Ctx.stroke();
 });
+
+let xrange = maxx - minx;
+let yrange = maxy - miny;
+
+console.log(minx, maxx, miny, maxy);
+console.log(xrange, yrange);
