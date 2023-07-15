@@ -125,10 +125,14 @@
     }
 
     .runbutton-style {
-        background-color: blue;
+        background-color: rgb(73, 73, 138);
         color: white;
         border-radius: 10px;
-        padding: 8px;
+        padding-right: 18px;
+        padding-left: 18px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        font-size: 12pt;
     }
 </style>
 
@@ -151,14 +155,6 @@
             <div class="depth-label control-label">Simulation depth:</div>
             <div class="depth"><input id="depthbox" size="3"></input></div>
             <div class="runbutton"><button id="run" class="runbutton-style" title="Run simulation">Run</button></div>
-            <!-- Algorithm:
-            <select id="algorithm" name="algorithm">
-                <option value="boxy">Boxy</option>
-                <option value="radial">Radial</option>
-            </select>
-            <button id="run" title="Run the simulation for this number of steps">Run</button>
-            Steps: <input size="8" id="numsteps"></input>
-            <button id="stop" title="Stop simulation">Stop</button> -->
         </div>
         <div class="sidebar">
             words
