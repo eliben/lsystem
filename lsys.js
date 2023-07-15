@@ -16,6 +16,7 @@ f=f-f++f-f`
 // let rules = parseAllRules(`f=|[-f][+f]`);
 
 // All configuration angles are in degrees.
+// TODO: also add angle noise
 const AngleChange = 60;
 const InitialAngle = 180;
 const ScaleMultiplier = 0.65;
@@ -83,13 +84,17 @@ function translateCoord(c) {
     return 200 + c * 11.6;
 }
 
-// Draw axes
-Ctx.strokeStyle = 'rgba(150, 0, 0, 0.3)';
+// Draw axes and bounds
+Ctx.strokeStyle = 'rgba(0, 0, 240, 0.2)';
 Ctx.beginPath();
-Ctx.moveTo(0, CanvasSize / 2);
-Ctx.lineTo(CanvasSize, CanvasSize / 2);
-Ctx.moveTo(CanvasSize / 2, 0);
-Ctx.lineTo(CanvasSize / 2, CanvasSize);
+for (let y of [0, CanvasSize / 2, CanvasSize - 1]) {
+    Ctx.moveTo(0, y);
+    Ctx.lineTo(CanvasSize, y);
+}
+for (let x of [0, CanvasSize / 2, CanvasSize - 1]) {
+    Ctx.moveTo(x, 0);
+    Ctx.lineTo(x, CanvasSize);
+}
 Ctx.stroke();
 
 // First run to determine the boundaries of the drawing, so we can calculate
