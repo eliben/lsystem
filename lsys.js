@@ -1,10 +1,16 @@
 'use strict';
 
-let axiom = parseRule('f++f++f');
+// let axiom = parseRule('f++f++f');
+let axiom = parseRule('f--f--f');
 
-// TODO: initialize more elegantly
-let rules = {};
-addRule(rules, 'f=f-f++f-f');
+// let rules = parseRules(`
+// f=f-f++f-f`
+// );
+
+let rules = parseAllRules(`
+f=f--f--f--gg
+g=gg
+`);
 
 // All configuration angles are in degrees.
 const AngleChange = 60;
@@ -27,8 +33,14 @@ function initialState() {
     };
 }
 
+// Recursively compute the given rule to the given depth, using an initial
+// state.
+// executor is invoked every time we want to move the cursor or draw a line.
+// It's called as executor(oldx, oldy, newx, newy, doDraw) when the movement
+// is from (oldx, oldy) to (newx, newy) and doDraw is true if we the pen is
+// down, false if it's up (just movement).
 function computeFigure(rule, depth, state, executor) {
-    console.log(`## depth=${depth}:`, rule);
+    // console.log(`## depth=${depth}:`, rule);
     for (let r of rule) {
         if (r instanceof TurnRight) {
             state.angle += r.num * AngleChange;
@@ -63,15 +75,14 @@ function computeFigure(rule, depth, state, executor) {
 }
 
 function translateCoord(c) {
-    return 200 + c * 10;
+    return 200 + c * 50;
 }
 
-computeFigure(axiom, 4, initialState(), (oldx, oldy, newx, newy, dodraw) => {
-    console.log(oldx, oldy, newx, newy, dodraw);
+computeFigure(axiom, 5, initialState(), (oldx, oldy, newx, newy, dodraw) => {
+    // console.log(oldx, oldy, newx, newy, dodraw);
 
     Ctx.beginPath();
     Ctx.moveTo(translateCoord(oldx), translateCoord(oldy));
     Ctx.lineTo(translateCoord(newx), translateCoord(newy));
     Ctx.stroke();
 });
-

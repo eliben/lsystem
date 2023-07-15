@@ -1,21 +1,28 @@
 'use strict';
 
-// Classes describing rule elements; a rule is an array of objects of these
-// types.
+// Rule definitions follow the following syntax, and the parse* functions
+// in this file provide parsing for the top-level elements from strings.
 //
-// A "rules" object maps letters (lowercase) to their corresponding rules.
-// The entry point is the addRule function which adds rules from textual
-// representation like "f=f--[f-]" to an object.
+// <allrules>       : <ruledef> {'\n' <ruledef>}
+//
+// <ruledef>        : <letter> '=' <rule>
+//
+// <axiom>          : <rule>
+//
+// <rule>           : { <rule_element> }
+//
+// <rule_element>   : <letter>
+//                  | { <digit> } ('+' | '-')
+//                  | '|'
+//                  | '[' <rule> ']'
+//
+// <letter>         : 'a' | 'b' | ... | 'z'
+// <digit>          : '0' | '1' | ... | '9'
+//
 
-// Given a rules object, add the parsed rule from `def` into it.
-function addRule(rules, def) {
-    def = def.toLowerCase();
-    let parts = def.split('=');
-    if (parts.length != 2 || parts[0].length != 1 || !isLetter(parts[0][0])) {
-        throw new Error(`malformed rule ${def}`);
-    }
-    rules[parts[0][0]] = parseRule(parts[1]);
-}
+
+// Classes describing rule elements; a parsed rule (as returned by parseRule) is
+// an array of objects with these types.
 
 class Letter {
     constructor(val) {
@@ -110,6 +117,31 @@ function parseRule(s) {
     }
 
     return rule;
+}
+
+// Parses a ruledef, returning a pair [letter, rule]
+function parseRuleDef(s) {
+    s = s.toLowerCase()
+    let parts = s.split('=').map(e => e.trim());
+    if (parts.length != 2 || parts[0].length != 1 || !isLetter(parts[0][0])) {
+        throw new Error(`malformed rule ${def}`);
+    }
+    return [parts[0], parseRule(parts[1])];
+}
+
+// Parses allrules from text, returning an object mapping letter->rule.
+function parseAllRules(s) {
+    s = s.toLowerCase();
+    let ruledefs = s.split('\n');
+    let rulemap = {};
+    for (let rd of ruledefs) {
+        rd = rd.trim();
+        if (rd.length > 0) {
+            let [letter, rule] = parseRuleDef(rd);
+            rulemap[letter] = rule;
+        }
+    }
+    return rulemap;
 }
 
 function isDigit(c) {
