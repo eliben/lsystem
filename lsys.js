@@ -1,28 +1,33 @@
 'use strict';
 
-// let axiom = parseRule('f++f++f');
-let axiom = parseRule('f--f--f');
-
-// let rules = parseRules(`
-// f=f-f++f-f`
-// );
+let axiom = parseRule('f++f++f');
+// let axiom = parseRule('f--f--f');
+// let axiom = parseRule('f');
 
 let rules = parseAllRules(`
-f=f--f--f--gg
-g=gg
-`);
+f=f-f++f-f`
+);
+
+// let rules = parseAllRules(`
+// f=f--f--f--gg
+// g=gg
+// `);
+
+// let rules = parseAllRules(`f=|[-f][+f]`);
 
 // All configuration angles are in degrees.
 const AngleChange = 60;
-const InitialAngle = 0;
+const InitialAngle = 180;
 const ScaleMultiplier = 0.65;
-const CanvasWidth = 400;
-const CanvasHeight = 400;
+const Depth = 7;
+
+const CanvasSize = 400;
+const BorderOffset = 10;
 
 const Canvas = document.getElementById('plot');
 const Ctx = Canvas.getContext('2d');
-Canvas.width = CanvasWidth;
-Canvas.height = CanvasHeight;
+Canvas.width = CanvasSize;
+Canvas.height = CanvasSize;
 
 function initialState() {
     return {
@@ -38,7 +43,7 @@ function initialState() {
 // executor is invoked every time we want to move the cursor or draw a line.
 // It's called as executor(oldx, oldy, newx, newy, doDraw) when the movement
 // is from (oldx, oldy) to (newx, newy) and doDraw is true if we the pen is
-// down, false if it's up (just movement).
+// down ('f' or '|'), false if it's up (just movement, 'g').
 function computeFigure(rule, depth, state, executor) {
     // console.log(`## depth=${depth}:`, rule);
     for (let r of rule) {
@@ -75,45 +80,106 @@ function computeFigure(rule, depth, state, executor) {
 }
 
 function translateCoord(c) {
-    return 200 + c * 50;
+    return 200 + c * 11.6;
 }
 
 // Draw axes
-Ctx.strokeStyle = '#bb0000';
+Ctx.strokeStyle = 'rgba(150, 0, 0, 0.3)';
 Ctx.beginPath();
-Ctx.moveTo(0, CanvasHeight / 2);
-Ctx.lineTo(CanvasWidth, CanvasHeight / 2);
-Ctx.moveTo(CanvasWidth / 2, 0);
-Ctx.lineTo(CanvasWidth / 2, CanvasHeight);
+Ctx.moveTo(0, CanvasSize / 2);
+Ctx.lineTo(CanvasSize, CanvasSize / 2);
+Ctx.moveTo(CanvasSize / 2, 0);
+Ctx.lineTo(CanvasSize / 2, CanvasSize);
 Ctx.stroke();
 
-
-
-const Depth = 5;
-
-// First run to determine the boundaries of the drawing in "units".
+// First run to determine the boundaries of the drawing, so we can calculate
+// the offsets and scale require for it to fill the canvas. The initial state
+// starts with scale=1, so it uses abstract units.
 let minx = Infinity;
 let maxx = -Infinity;
 let miny = Infinity;
 let maxy = -Infinity;
 
 Ctx.strokeStyle = '#000000';
-computeFigure(axiom, 5, initialState(), (oldx, oldy, newx, newy, dodraw) => {
+computeFigure(axiom, Depth, initialState(), (oldx, oldy, newx, newy, dodraw) => {
     minx = Math.min(minx, newx);
     maxx = Math.max(maxx, newx);
     miny = Math.min(miny, newy);
     maxy = Math.max(maxy, newy);
-    // console.log(oldx, oldy, newx, newy, dodraw);
-
-    // Ctx.strokeStyle = '#550000';
-    Ctx.beginPath();
-    Ctx.moveTo(translateCoord(oldx), translateCoord(oldy));
-    Ctx.lineTo(translateCoord(newx), translateCoord(newy));
-    Ctx.stroke();
 });
 
+// Now we have the boundaries of the drawing in abstract units (scale=1), but
+// we want to draw it on a real canvas!
+//
+// We want to map the drawing coordinates to the canvas coordinates. Let's
+// say that the drawing looks like this:
+//
+//       +----+
+//       |    |
+//       |    |
+//       |    |
+//       |    |
+//       +----+
+//
+// But the canvas looks like this:
+//
+//       +---------------------+
+//       |                     |
+//       |                     |
+//       |                     |
+//       |                     |
+//       |                     |
+//       |                     |
+//       |                     |
+//       |                     |
+//       |                     |
+//       +---------------------+
+//
+// The mapping is done in two steps:
+//
+// 1. Calculate the scaling factor to make the drawing just fit in the canvas;
+//    the drawing can still be shifted relative to the canvas.
+//
+//        Drawing
+//    +------------+
+//    |            |   Canvas
+//    |  +---------+-----------+
+//    |  |         |           |
+//    |  |         |           |
+//    |  |         |           |
+//    |  |         |           |
+//    |  |         |           |
+//    |  |         |           |
+//    |  |         |           |
+//    +--+---------+           |
+//       |                     |
+//       +---------------------+
+//
+// 2. Calcualte the shift needed to move the drawing into the canvas, centering
+//    it if possible.
+
+// "draw scale" - the scaling factor we have to multiply the
+// computed coordinates to map to our canvas.
+// Choose the larger range to make sure the drawing fits both x-wise and y-wise.
 let xrange = maxx - minx;
 let yrange = maxy - miny;
+let maxrange = Math.max(xrange, yrange);
+let drawscale = (CanvasSize - 2 * BorderOffset) / maxrange;
 
-console.log(minx, maxx, miny, maxy);
-console.log(xrange, yrange);
+// How much shift to the right and down is required to fit into the canvas.
+let xoffset = CanvasSize / 2 - (minx + xrange / 2) * drawscale;
+let yoffset = CanvasSize / 2 - (miny + yrange / 2) * drawscale;
+
+// Second run to actually draw the figure in the right place/scale.
+function translateX(x) { return xoffset + x * drawscale; }
+function translateY(y) { return yoffset + y * drawscale; }
+
+computeFigure(axiom, Depth, initialState(), (oldx, oldy, newx, newy, dodraw) => {
+    if (dodraw) {
+        Ctx.beginPath();
+        Ctx.moveTo(translateX(oldx), translateY(oldy));
+        Ctx.lineTo(translateX(newx), translateY(newy));
+        Ctx.stroke();
+    }
+});
+
