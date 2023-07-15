@@ -5,31 +5,16 @@
         display: grid;
         max-width: 800px;
         grid-template-columns: 5fr 3fr;
-        grid-template-rows: repeat(3, fit-content());
+        grid-template-rows: repeat(2, fit-content());
         grid-template-areas:
             "plotcanvas sidebar"
-            "axiom empty"
-            "rules empty"
+            "controls ."
     }
 
     .plotcanvas {
         grid-area: plotcanvas;
         justify-self: center;
         padding: 15px;
-    }
-
-    .axiom {
-        grid-area: axiom;
-        justify-self: center;
-        text-align: center;
-        padding-top: 2px;
-    }
-
-    .rules {
-        grid-area: rules;
-        justify-self: center;
-        text-align: center;
-        padding-top: 2px;
     }
 
     .sidebar {
@@ -41,8 +26,109 @@
         padding: 15px;
     }
 
-    .empty {
-        grid-area: empty;
+    .controls {
+        padding: 15px;
+        margin: 0 auto;
+        display: grid;
+        align-items: center;
+        grid-template-columns: 2fr 4fr;
+        grid-template-rows: repeat(7, fit-content());
+        grid-template-areas:
+            "axiom-label axiom"
+            "rules-label rules"
+            "initangle-label initangle"
+            "anglechange-label anglechange"
+            "scale-label scale"
+            "depth-label depth"
+            ". runbutton"
+    }
+
+    .control-label {
+        vertical-align: middle;
+        justify-self: left;
+        text-align: left;
+        padding-top: 5px;
+        padding-right: 10px;
+    }
+
+    .axiom-label {
+        grid-area: axiom-label;
+    }
+
+    .axiom {
+        grid-area: axiom;
+        justify-self: left;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .rules-label {
+        grid-area: rules-label;
+    }
+    
+    .rules {
+        grid-area: rules;
+        justify-self: left;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .initangle-label {
+        grid-area: initangle-label;
+    }
+    
+    .initangle {
+        grid-area: initangle;
+        justify-self: left;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .anglechange-label {
+        grid-area: anglechange-label;
+    }
+    
+    .anglechange {
+        grid-area: anglechange;
+        justify-self: left;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .scale-label {
+        grid-area: scale-label;
+    }
+    
+    .scale {
+        grid-area: scale;
+        justify-self: left;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .depth-label {
+        grid-area: depth-label;
+    }
+    
+    .depth {
+        grid-area: depth;
+        justify-self: left;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .runbutton {
+        grid-area: runbutton;
+        justify-self: left;
+        text-align: center;
+        padding-top: 5px;
+    }
+
+    .runbutton-style {
+        background-color: blue;
+        color: white;
+        border-radius: 10px;
+        padding: 8px;
     }
 </style>
 
@@ -52,13 +138,19 @@
             <canvas id="plot"></canvas>
         </div>
         <div class="controls">
-            <div class="axiom">
-                Axiom: <input id="axiombox" size="25"></input>
-                
-            </div>
-            <div class="rules">
-                Rule(s): <textarea id="rulesbox" rows="5" cols="25" placeholder="Rules"></textarea>
-            </div>
+            <div class="axiom-label control-label">Axiom:</div>
+            <div class="axiom"><input id="axiombox" size="25"></input></div>
+            <div class="rules-label control-label">Rule(s):</div>
+            <div class="rules"><textarea id="rulesbox" rows="5" cols="25" placeholder="Rules"></textarea></div>
+            <div class="initangle-label control-label">Initial angle (deg):</div>
+            <div class="initangle"><input id="initanglebox" size="4"></input></div>
+            <div class="anglechange-label control-label">Angle change (deg):</div>
+            <div class="anglechange"><input id="anglechangebox" size="4"></input></div>
+            <div class="scale-label control-label">Scale multiplier:</div>
+            <div class="scale"><input id="scalebox" size="3"></input></div>
+            <div class="depth-label control-label">Simulation depth:</div>
+            <div class="depth"><input id="depthbox" size="3"></input></div>
+            <div class="runbutton"><button id="run" class="runbutton-style" title="Run simulation">Run</button></div>
             <!-- Algorithm:
             <select id="algorithm" name="algorithm">
                 <option value="boxy">Boxy</option>
