@@ -41,9 +41,41 @@ const AngleChangeBox = document.getElementById('anglechangebox');
 const ScaleMultiplierBox = document.getElementById('scalebox');
 const DepthBox = document.getElementById('depthbox');
 const RunButton = document.getElementById('run');
+const Presets = document.getElementById('presets');
+const SetPresetButton = document.getElementById('setpreset');
 RunButton.addEventListener('mousedown', onRun);
+SetPresetButton.addEventListener('mousedown', onSetPreset);
 
+let figurePresets = [
+    {
+        'name': 'Sierpinski',
+        'axiom': 'f--f--f',
+        'rules': 'f=f--f--f--gg' + '\n' + 'g=gg',
+        'initangle': '180',
+        'anglechange': '60',
+        'scalemultiplier': '0.6',
+        'depth': '6',
+    },
+    {
+        'name': 'Koch Star',
+        'axiom': 'f++f++f',
+        'rules': 'f=f-f++f-f',
+        'initangle': '180',
+        'anglechange': '60',
+        'scalemultiplier': '0.6',
+        'depth': '6',
+    },
+    
+];
+
+// TODO: move all toplevel stuff to the bottom
 loadUIState();
+for (let ps of figurePresets) {
+    let option = elt('option', ps.name);
+    option.setAttribute('value', ps.name);
+    Presets.appendChild(option);
+}
+setupCanvas();
 
 function loadUIState() {
     let state = JSON.parse(localStorage.getItem(STORAGE_ID));
@@ -76,7 +108,6 @@ function saveUIState() {
 // is from (oldx, oldy) to (newx, newy) and doDraw is true if we the pen is
 // down ('f' or '|'), false if it's up (just movement, 'g').
 function computeFigure(rule, rules, state, executor) {
-    // console.log(`## depth=${depth}:`, rule);
     for (let r of rule) {
         if (r instanceof TurnRight) {
             state.angle += r.num * state.angleChange;
@@ -125,9 +156,17 @@ function initialState() {
     };
 }
 
-function onRun() {
-    saveUIState();
+function onSetPreset() {
+    let selectedPreset = figurePresets[Presets.selectedIndex];
+    AxiomTextBox.value = selectedPreset.axiom;
+    RulesTextBox.value = selectedPreset.rules;
+    InitAngleBox.value = selectedPreset.initangle;
+    AngleChangeBox.value = selectedPreset.anglechange;
+    ScaleMultiplierBox.value = selectedPreset.scalemultiplier;
+    DepthBox.value = selectedPreset.depth;
+}
 
+function setupCanvas() {
     Ctx.fillStyle = '#ffffff';
     Ctx.fillRect(0, 0, Canvas.width, Canvas.height);
 
@@ -143,6 +182,11 @@ function onRun() {
         Ctx.lineTo(x, CanvasSize);
     }
     Ctx.stroke();
+}
+
+function onRun() {
+    saveUIState();
+    setupCanvas();
 
     // First run to determine the boundaries of the drawing, so we can calculate
     // the offsets and scale require for it to fill the canvas. The initial state
@@ -229,8 +273,6 @@ function onRun() {
     function translateX(x) { return xoffset + x * drawscale; }
     function translateY(y) { return yoffset + y * drawscale; }
 
-    // console.log(axiom, initialState());
-
     computeFigure(axiom, rules, initialState(), (oldx, oldy, newx, newy, dodraw) => {
         if (dodraw) {
             Ctx.beginPath();
@@ -240,3 +282,13 @@ function onRun() {
         }
     });
 }
+
+function elt(type, ...children) {
+    let node = document.createElement(type);
+    for (let child of children) {
+      if (typeof child != "string") node.appendChild(child);
+      else node.appendChild(document.createTextNode(child));
+    }
+    return node;
+  }
+  

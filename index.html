@@ -8,7 +8,7 @@
         grid-template-rows: repeat(2, fit-content());
         grid-template-areas:
             "plotcanvas sidebar"
-            "controls ."
+            "controls presets"
     }
 
     .plotcanvas {
@@ -41,6 +41,11 @@
             "scale-label scale"
             "depth-label depth"
             ". runbutton"
+    }
+
+    .presets {
+        grid-area: presets;
+        padding-top: 10px;
     }
 
     .control-label {
@@ -157,7 +162,12 @@
             <div class="runbutton"><button id="run" class="runbutton-style" title="Run simulation">Run</button></div>
         </div>
         <div class="sidebar">
-            words
+            <p>words</p>
+            <p>Starting angle 180</p>
+        </div>
+        <div class="presets">
+            Preset: <select id="presets" name="presets"></select>
+            <button id="setpreset">Set</button>
         </div>
     </div>
 
