@@ -124,7 +124,7 @@ function parseRuleDef(s) {
     s = s.toLowerCase()
     let parts = s.split('=').map(e => e.trim());
     if (parts.length != 2 || parts[0].length != 1 || !isLetter(parts[0][0])) {
-        throw new Error(`malformed rule ${def}`);
+        throw new Error(`malformed rule definition ${s}`);
     }
     return [parts[0], parseRule(parts[1])];
 }
