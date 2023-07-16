@@ -23,7 +23,7 @@
         font-size: 14px;
         border: solid 1px;
         border-color: darkgray;
-        padding: 15px;
+        padding: 5px;
     }
 
     .controls {
@@ -162,8 +162,20 @@
             <div class="runbutton"><button id="run" class="runbutton-style" title="Run simulation">Run</button></div>
         </div>
         <div class="sidebar">
-            <p>words</p>
-            <p>Starting angle 180</p>
+            <a href="https://en.wikipedia.org/wiki/L-system">L-system simulation</a>
+            <p>Parses axioms and rules and runs a simulation with the given
+                parameters. Use the <i>Preset</i> selector in the bottom for
+                some pre-filled shapes.
+            </p>
+            <p><b>Axiom:</b> initial statement to start the expansion from.</p>
+            <p><b>Rules:</b> sequence of newline-separated replacement rules.</p>
+            <p><b>Initial angle:</b> initial angle the drawing pen is pointing in, in
+            degrees. This simulation uses canvas coordinates (<b>y</b> grows downward),
+            so to start pointing up the initial angles should be set at 180.</p>
+            <p><b>Angle change:</b> degrees for each turn command.</p>
+            <p><b>Scale multiplier:</b> length multiplier for each recursive step.</p>
+            <p><b>Simulation depth:</b> how many recursion steps to perform.</p>
+            
         </div>
         <div class="presets">
             Preset: <select id="presets" name="presets"></select>
