@@ -248,6 +248,15 @@ SetPresetButton.addEventListener('mousedown', onSetPreset);
 
 let figurePresets = [
     {
+        'name': '',
+        'axiom': '',
+        'rules': '',
+        'initangle': '',
+        'anglechange': '',
+        'scalemultiplier': '',
+        'depth': '',
+    },
+    {
         'name': 'Big-H',
         'axiom': '[f]--f',
         'rules': 'f=|[+f][-f]',
